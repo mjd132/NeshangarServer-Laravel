@@ -26,9 +26,7 @@ class UserClient
         $userClient->id = $user->id;
         $userClient->name = $user->name;
         $userClient->status = UserStatus::getIndex($user->status);
-        $userClient->expireInterval = $user->getExpirationInterval() !== null
-            ? UserClient::convertDateIntervalToTimeSpanFormat($user->getExpirationInterval())
-            : null;
+        $userClient->expireInterval = null;
         $userClient->expiredAt = $user->getExpiredAt()?->format('Y-m-d\TH:i:s.uP');
         $userClient->statusUpdatedAt = null;
         $userClient->lastOnlineAt = null;

@@ -65,7 +65,7 @@ class User extends Authenticatable
         if ($status === UserStatus::BUSY && $expirationInterval !== null) {
             $timeParts = explode(':', $expirationInterval);
             $timeInterval = new DateInterval("PT{$timeParts[0]}H{$timeParts[1]}M{$timeParts[2]}S");
-            $this->setExpiredAt($timeInterval);
+            $this->setExpiredAtByDateInterval($timeInterval);
         }
 
         if ($status !== UserStatus::BUSY) {
@@ -83,51 +83,25 @@ class User extends Authenticatable
 
     public function forgotExpiredAt(): void
     {
-        Cache::forget('user-' . $this->id);
+        $this->expired_at = null;
+        $this->save();
     }
 
     /**
      * @throws Exception
      */
-    public function getExpirationInterval(): DateInterval|null
-    {
-        $data = Cache::get('user-' . $this->id);
-
-        if ($data !== null) {
-            $parts = explode('|', $data);
-            return new DateInterval($parts[0]);
-        }
-
-        return null;
-    }
-
     public function getExpiredAt(): DateTime|null
     {
-        $data = Cache::get('user-' . $this->id);
-
-        if ($data !== null) {
-            $parts = explode('|', $data);
-            return DateTime::createFromFormat('Y-m-d H:i:s', $parts[1]);
-        }
-
-        return null;
+        return new DateTime($this->expired_at);
     }
 
-    public function getRemainingExpiration()
-    {
-        return Redis::ttl('user-' . $this->id);
-    }
-
-    public function setExpiredAt(DateInterval $expiration): void
+    public function setExpiredAtByDateInterval(DateInterval $expiration): void
     {
         $intervalString = $expiration
             ->format("PT{$expiration->h}H{$expiration->i}M{$expiration->s}S");
         $expiredAt = (new DateTime())->add($expiration);
 
-        Cache::put(
-            'user-' . $this->id,
-            $intervalString . '|' . $expiredAt->format('Y-m-d H:i:s'),
-            $expiration
-        );
+        $this->expired_at = $expiredAt;
+        $this->save();
     }
 }
