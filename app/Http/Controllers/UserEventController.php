@@ -18,4 +18,13 @@ class UserEventController extends Controller
     {
 
     }
+
+//    public function connect($name){
+//        broadcast(new UserConnected($name));
+//    }
+
+//    public function updateUserStatus($userId, $status)
+//    {
+//        broadcast(new UserStatusChanged($userId, $status));
+//    }
 }
