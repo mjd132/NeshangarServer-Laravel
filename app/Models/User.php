@@ -62,10 +62,12 @@ class User extends Authenticatable
 
     public function changeStatus(UserStatus $status, string|null $expirationInterval = null): bool
     {
-        if ($status === UserStatus::BUSY && $expirationInterval !== null) {
+        if ($status === UserStatus::BUSY && $expirationInterval !== null && $expirationInterval) {
             $timeParts = explode(':', $expirationInterval);
             $timeInterval = new DateInterval("PT{$timeParts[0]}H{$timeParts[1]}M{$timeParts[2]}S");
-            $this->setExpiredAtByDateInterval($timeInterval);
+            if (isDateIntervalBetween5And120Minutes($timeInterval)) {
+                $this->setExpiredAtByDateInterval($timeInterval);
+            }
         }
 
         if ($status !== UserStatus::BUSY) {
