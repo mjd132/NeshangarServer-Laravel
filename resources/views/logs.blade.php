@@ -12,6 +12,8 @@
         }
 
         .log-container {
+            display: flex;
+            align-items: center;
             background-color: #fff;
             border: 1px solid #ddd;
             border-radius: 5px;
@@ -21,6 +23,7 @@
         }
 
         .log-timestamp {
+
             color: #666;
             font-weight: bold;
             margin-right: 10px;
@@ -76,6 +79,7 @@
         .log-message {
             margin-left: 20px;
             color: #333;
+            flex: 2;
         }
     </style>
 
