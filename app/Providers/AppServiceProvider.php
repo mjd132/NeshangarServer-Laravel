@@ -23,9 +23,7 @@ class AppServiceProvider extends ServiceProvider
             return new ClientService(new ChannelManager());
         });
 
-        $this->app->singleton(Server::class, function ($app) {
-            return new WebSocketServer();
-        });
+        $this->app->singleton(Server::class, fn() => new WebSocketServer());
     }
 
     /**

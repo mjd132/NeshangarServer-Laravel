@@ -9,6 +9,7 @@ use App\Events\WebSocket\OnMessageReceived;
 use App\Models\Enums\UserStatus;
 use App\Models\User;
 use App\Services\WebSocketServer;
+use App\WebSocket\Middleware\HandshakeValidatorMiddleware;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
@@ -53,6 +54,7 @@ class WebSocketRunnerCommand extends Command
         $this->setOfflineStatusForAllUsers();
 
         $this->wss
+            ->addMiddleware(new HandshakeValidatorMiddleware())
             ->addMiddleware(new CloseHandler())
             ->addMiddleware(new PingResponder())
             ->onHandshake(function (Server $server, Connection $connection, RequestInterface $request, ResponseInterface $response) use ($logger, $isDebug) {
@@ -93,11 +95,8 @@ class WebSocketRunnerCommand extends Command
             'ssl' => $this->wss->isSsl(),
         ]) : null;
 
-        try {
-            $this->wss->start();
-        } catch (Throwable $e) {
-            $isLogger ? $logger->error($e->getMessage(), ['exception' => $e]) : null;
-        }
+        $this->wss->start();
+
     }
 
     private function setOfflineStatusForAllUsers()
