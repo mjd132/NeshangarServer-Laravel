@@ -62,25 +62,28 @@ class User extends Authenticatable
 
     public function changeStatus(UserStatus $status, string|null $expirationInterval = null): bool
     {
-        if ($status === UserStatus::BUSY && $expirationInterval !== null && $expirationInterval) {
+        $updated = false;
+        if ($status === UserStatus::BUSY && $expirationInterval !== null) {
             $timeParts = explode(':', $expirationInterval);
-            $timeInterval = new DateInterval("PT{$timeParts[0]}H{$timeParts[1]}M{$timeParts[2]}S");
-            if (isDateIntervalBetween5And120Minutes($timeInterval)) {
-                $this->setExpiredAtByDateInterval($timeInterval);
+
+            if (count($timeParts) === 3) {
+                $timeInterval = new DateInterval("PT{$timeParts[0]}H{$timeParts[1]}M{$timeParts[2]}S");
+
+                if (isDateIntervalBetween5And120Minutes($timeInterval)) {
+                    $this->setExpiredAtByDateInterval($timeInterval);
+                    $updated = $this->update(['status' => $status->value]);
+                }
             }
-        }
-
-        if ($status !== UserStatus::BUSY) {
+        } elseif ($status !== UserStatus::BUSY) {
             $this->forgotExpiredAt();
+            $updated = $this->update(['status' => $status->value]);
         }
 
-        $res = $this->update(['status' => $status->value]);
-        if ($res) {
+        if ($updated) {
             UserStatusChanged::dispatch();
         }
 
-
-        return $res;
+        return $updated;
     }
 
     public function forgotExpiredAt(): void

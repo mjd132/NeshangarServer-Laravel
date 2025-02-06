@@ -100,6 +100,7 @@ trait MethodInvoker
     {
         $id = $args[0]->id;
 
+        /** @var User $user */
         $user = User::findOrFail($id);
         $status = $this->getStatusEnumByInt($args[0]->status);
 
