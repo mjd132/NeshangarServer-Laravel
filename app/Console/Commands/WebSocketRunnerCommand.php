@@ -18,7 +18,6 @@ use Psr\Http\Message\ResponseInterface;
 use Throwable;
 use TypeError;
 use WebSocket\Connection;
-use WebSocket\Exception\CloseException;
 use WebSocket\Message\Message;
 use WebSocket\Middleware\CloseHandler;
 use WebSocket\Middleware\PingResponder;
@@ -67,7 +66,10 @@ class WebSocketRunnerCommand extends Command
                 $text = $message->getContent();
 
                 if ($isDebug) {
-                    $logger->info("Message Received ({$connection->getRemoteName()}): {$text}");
+                    $arrayConverted = json_decode(trim($text, "\u{001e}"), true);
+                    $arrayConverted !== null
+                        ? $logger->info("Message Received ({$connection->getRemoteName()}): ", $arrayConverted)
+                        : $logger->info("Message Received ({$connection->getRemoteName()}): ");
                 }
 
                 OnMessageReceived::dispatch($message, $connection);

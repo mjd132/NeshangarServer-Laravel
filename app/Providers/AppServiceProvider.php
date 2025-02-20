@@ -3,8 +3,10 @@
 namespace App\Providers;
 
 use App\ClientChannels\ChannelManager;
+use App\Logging\SanitizeSensitiveData;
 use App\Services\ClientService;
 use App\Services\WebSocketServer;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 use WebSocket\Server;
 
@@ -15,6 +17,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        Log::getLogger()->pushProcessor(new SanitizeSensitiveData());
+
         $this->app->singleton(ChannelManager::class, function ($app) {
             return new ChannelManager();
         });

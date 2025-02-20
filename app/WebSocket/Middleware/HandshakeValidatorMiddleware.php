@@ -20,18 +20,13 @@ class HandshakeValidatorMiddleware implements MiddlewareInterface, ProcessIncomi
     {
         $request = $connection->getHandshakeRequest();
 
-        logger()->debug('HandshakeValidatorMiddleware processIncoming -- ', [
-            'header' => $request->getHeaders(),
-            'remote name' => $connection->getRemoteName(),
-            'uri' => $request->getUri()
-        ]);
-
         $connectionHeader = $request->getHeaderLine('Connection');
         $upgradeHeader = $request->getHeaderLine('Upgrade');
 
         if (empty($request->getHeaders()) || strtolower($connectionHeader) !== 'upgrade' || strtolower($upgradeHeader) !== 'websocket') {
             // Log invalid handshake attempt
             logger()->warning('Invalid handshake attempt', [
+                'X-Real-IP' => $request->getHeaders()['X-Real-IP'] ?? null,
                 'Connection' => $connectionHeader,
                 'Upgrade' => $upgradeHeader,
             ]);
